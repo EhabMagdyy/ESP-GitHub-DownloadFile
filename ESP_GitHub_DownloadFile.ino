@@ -106,13 +106,19 @@ void setup()
   Serial.begin(115200);
 
   // Initialize LittleFS
-  if (!LittleFS.begin())
-  {
-    Serial.println("Failed to mount LittleFS file system");
-    return;
-  }
-  else
-  {
+  if (!LittleFS.begin()) {
+    Serial.println("LittleFS mount failed. Attempting to format...");
+    if (LittleFS.format()) {
+      Serial.println("LittleFS formatted successfully.");
+      if (!LittleFS.begin()) {
+        Serial.println("Failed to mount after formatting. Halt.");
+        while (1); // Stop here if formatting fails
+      }
+    } else {
+      Serial.println("Formatting failed. Halt.");
+      while (1);
+    }
+  } else {
     Serial.println("LittleFS mounted successfully");
   }
 
